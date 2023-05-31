@@ -13,6 +13,24 @@ import { AppService } from './app.service';
   // imports: [ConfigModule.forRoot({ isGlobal: true, load: [getEnv] })],
   imports: [ConfigModule.forRoot({ isGlobal: true })],
   controllers: [AppController],
-  providers: [AppService, ConfigService],
+  providers: [
+    ConfigService,
+    /*
+      매개변수 AppService의 원형
+      {provide: AppService, useClass: AppService,}, === AppService
+    */
+    {
+      provide: AppService,
+      useClass: AppService,
+    },
+    /*
+      기타 provider 사용법(중 하나)
+      AppController의 구현 예제 참고
+    */
+    {
+      provide: 'CUSTOM_KEY',
+      useValue: 'CUSTOM_VALUE',
+    },
+  ],
 })
 export class AppModule {}
