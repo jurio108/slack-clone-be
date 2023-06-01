@@ -9,6 +9,7 @@ import {
   ApiOkResponse,
 } from '@nestjs/swagger';
 import { UserDto } from 'src/common/dto/user.dto';
+import { User } from 'src/common/decorators/user.decorator';
 
 @ApiTags('USER')
 @Controller('api/users')
@@ -23,8 +24,8 @@ export class UsersController {
     description: '사용자 로그인 정보를 가져옴, 로그인되어있지 않으면 false',
   })
   @Get()
-  getUsers(@Req() req) {
-    return req.users;
+  getUsers(@User() user) {
+    return user;
   }
 
   // GET /workspaces/:url/users/:id
@@ -51,8 +52,8 @@ export class UsersController {
   // return: IUser
   @ApiOperation({ summary: '로그인' })
   @Post('login')
-  logIn() {
-    // logIn
+  logIn(@User() user) {
+    return user;
   }
 
   // POST /users/logout
