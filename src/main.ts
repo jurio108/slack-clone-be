@@ -1,7 +1,9 @@
+import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
+import { HttpExceptionFilter } from './http.exception.filter';
 
 declare const module: any;
 
@@ -9,7 +11,10 @@ const configService = new ConfigService();
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  const port = configService.get('PORT') || 3000;
+  const port = configService.get('PORT') || 3095;
+
+  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalFilters(new HttpExceptionFilter()); // HttpExceptionFilter 사용
 
   // swagger 설정
   const config = new DocumentBuilder()

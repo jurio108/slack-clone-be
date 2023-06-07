@@ -6,6 +6,7 @@ import {
   Req,
   Res,
   UseInterceptors,
+  UseGuards,
 } from '@nestjs/common';
 import { JoinRequestDto } from './dto/join.request.dto';
 import { UsersService } from './users.service';
@@ -41,18 +42,21 @@ export class UsersController {
   // :url의 멤버인 특정 :id 사용자 정보를 가져옴
   // return: IUser
 
-  // POST /users
-  // 회원가입
-  // body: { email: string(이메일), nickname: string(닉네임), password: string(비밀번호) }
-  // return: 'ok'
+  /**
+   * POST /users
+   * 회원가입
+   *
+   * @param body { email: string(이메일), nickname: string(닉네임), password: string(비밀번호) }
+   * @returns 회원 가입 정보
+   */
   @ApiOkResponse({
     description: '성공',
     type: UserDto,
   })
   @ApiOperation({ summary: '회원가입' })
   @Post()
-  postUsers(@Body() body: JoinRequestDto) {
-    this.usersService.postUsers(body.email, body.nickname, body.password);
+  async join(@Body() body: JoinRequestDto) {
+    await this.usersService.join(body.email, body.nickname, body.password);
   }
 
   // POST /users/login
@@ -60,6 +64,7 @@ export class UsersController {
   // body: { email: string(이메일), password: string(비밀번호) }
   // return: IUser
   @ApiOperation({ summary: '로그인' })
+  // @UseGuards(LocalAuthGuard)
   @Post('login')
   logIn(@User() user) {
     return user;

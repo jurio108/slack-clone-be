@@ -56,16 +56,7 @@ const configService = new ConfigService();
       keepConnectionAlive: true,
       charset: 'utf8mb4',
     }),
-    // TypeOrmModule.forFeature([
-    //   ChannelChats,
-    //   ChannelMembers,
-    //   Channels,
-    //   DMs,
-    //   Mentions,
-    //   Users,
-    //   WorkspaceMembers,
-    //   Workspaces,
-    // ]),
+    TypeOrmModule.forFeature([Users]),
   ],
   controllers: [AppController],
   providers: [
