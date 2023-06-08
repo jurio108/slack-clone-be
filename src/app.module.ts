@@ -16,6 +16,7 @@ import { DMs } from './entities/DMs';
 import { Mentions } from './entities/Mentions';
 import { WorkspaceMembers } from './entities/WorkspaceMembers';
 import { Workspaces } from './entities/Workspaces';
+import { AuthModule } from './auth/auth.module';
 
 // const getEnv = async () => {
 //   return {
@@ -29,14 +30,10 @@ const configService = new ConfigService();
   // imports: [ConfigModule.forRoot({ isGlobal: true, load: [getEnv] })],
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-    UsersModule,
-    WorkspacesModule,
-    ChannelsModule,
-    DmsModule,
     TypeOrmModule.forRoot({
       type: 'mysql',
       host: configService.get('DB_HOST'),
-      port: configService.get('DB_PORT'),
+      port: configService.get<number>('DB_PORT'),
       username: configService.get('DB_USERNAME'),
       password: configService.get('DB_PASSWORD'),
       database: configService.get('DB_DATABASE'),
@@ -56,7 +53,21 @@ const configService = new ConfigService();
       keepConnectionAlive: true,
       charset: 'utf8mb4',
     }),
-    TypeOrmModule.forFeature([Users]),
+    TypeOrmModule.forFeature([
+      ChannelChats,
+      ChannelMembers,
+      Channels,
+      DMs,
+      Mentions,
+      Users,
+      WorkspaceMembers,
+      Workspaces,
+    ]),
+    AuthModule,
+    UsersModule,
+    WorkspacesModule,
+    ChannelsModule,
+    DmsModule,
   ],
   controllers: [AppController],
   providers: [

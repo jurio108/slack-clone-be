@@ -4,6 +4,9 @@ import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
 import { HttpExceptionFilter } from './http.exception.filter';
+import passport from 'passport';
+import cookieParser from 'cookie-parser';
+import session from 'express-session';
 
 declare const module: any;
 
@@ -27,6 +30,23 @@ async function bootstrap() {
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
+
+  // cookie-parser, session 설정
+  app.use(cookieParser());
+  app.use(
+    session({
+      resave: false,
+      saveUninitialized: false,
+      secret: configService.get('COOKIE_SECRET'),
+      cookie: {
+        httpOnly: true,
+      },
+    }),
+  );
+
+  // passport 설정
+  app.use(passport.initialize());
+  app.use(passport.session());
 
   await app.listen(port);
 
