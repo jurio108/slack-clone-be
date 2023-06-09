@@ -2,6 +2,7 @@ import {
   // HttpException,
   ConflictException,
   Injectable,
+  Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Users } from 'src/entities/Users';
@@ -21,6 +22,8 @@ export class UsersService {
     // private channelMembersRepository: Repository<ChannelMembers>,
     private dataSource: DataSource,
   ) {}
+
+  private logger = new Logger('UsersService');
 
   async join(email: string, nickname: string, password: string) {
     const queryRunner = this.dataSource.createQueryRunner(); // transaction 생성용 queryrunner
@@ -64,7 +67,7 @@ export class UsersService {
       await queryRunner.commitTransaction();
       return users;
     } catch (error) {
-      console.error(error);
+      this.logger.error(error);
       await queryRunner.rollbackTransaction();
       throw error;
     } finally {
