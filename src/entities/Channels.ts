@@ -14,6 +14,7 @@ import { ChannelChats } from './ChannelChats';
 import { ChannelMembers } from './ChannelMembers';
 import { Users } from './Users';
 import { Workspaces } from './Workspaces';
+import { ApiProperty } from '@nestjs/swagger';
 
 @Index('WorkspaceId', ['WorkspaceId'], {})
 @Entity({ schema: 'sleact' })
@@ -21,6 +22,10 @@ export class Channels {
   @PrimaryGeneratedColumn({ type: 'int', name: 'id' })
   id: number;
 
+  @ApiProperty({
+    example: '수다방',
+    description: '채널명',
+  })
   @Column('varchar', { name: 'name', length: 30 })
   name: string;
 
