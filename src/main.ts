@@ -7,17 +7,36 @@ import { HttpExceptionFilter } from './http.exception.filter';
 import passport from 'passport';
 import cookieParser from 'cookie-parser';
 import session from 'express-session';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import path from 'path';
 
 declare const module: any;
 
 const configService = new ConfigService();
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const port = configService.get('PORT') || 3095;
 
-  app.useGlobalPipes(new ValidationPipe());
-  app.useGlobalFilters(new HttpExceptionFilter()); // HttpExceptionFilter 사용
+  app.useGlobalFilters(new HttpExceptionFilter());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+    }),
+  ); // HttpExceptionFilter 사용
+
+  app.enableCors({
+    origin: true,
+    credentials: true,
+  });
+
+  app.useStaticAssets(path.join(__dirname, '..', 'uploads'), {
+    prefix: '/uploads',
+  });
+
+  app.useStaticAssets(path.join(__dirname, '..', 'public'), {
+    prefix: '/dist',
+  });
 
   // swagger 설정
   const config = new DocumentBuilder()
