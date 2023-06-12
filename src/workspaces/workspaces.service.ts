@@ -12,8 +12,8 @@ export class WorkspacesService {
   constructor(
     @InjectRepository(Workspaces)
     private workspacesRepository: Repository<Workspaces>,
-    @InjectRepository(Channels)
-    private channelsRepository: Repository<Channels>,
+    // @InjectRepository(Channels)
+    // private channelsRepository: Repository<Channels>,
     @InjectRepository(WorkspaceMembers)
     private workspaceMembersRepository: Repository<WorkspaceMembers>,
     @InjectRepository(ChannelMembers)
@@ -92,12 +92,15 @@ export class WorkspacesService {
         url,
       })
       .getMany();
+    // ${} 으로 직접 변수를 넣으면 인젝션에 취약해짐 >>> 파라미터로 넣으면 typeorm에서 위험문자를 바꿔줌
+    // .innerJoin('members.Workspace', 'workspace', `workspace.url = ${url}`)
 
     /**
-     * getMany, getRawMany 차이점
+     * getMany, getRawMany 차이점 : return 값에 주목
+     *
+     * return : ID, EMAIL, Workspace.NAME
      *
      * getRawMany
-     * ID, EMAIL, Workspace.NAME
      *  {
      *    ID: '',
      *    EMAIL: '',
@@ -115,39 +118,43 @@ export class WorkspacesService {
      */
   }
 
-  // async createWorkspaceMembers(url, email) {
-  //   const workspace = await this.workspacesRepository.findOne({
-  //     where: { url },
-  //     join: {
-  //       alias: 'workspace',
-  //       innerJoinAndSelect: {
-  //         channels: 'workspace.Channels',
-  //       },
-  //     },
-  //   });
-  //   const user = await this.usersRepository.findOne({ where: { email } });
-  //   if (!user) {
-  //     return null;
-  //   }
-  //   const workspaceMember = new WorkspaceMembers();
-  //   workspaceMember.WorkspaceId = workspace.id;
-  //   workspaceMember.UserId = user.id;
-  //   await this.workspaceMembersRepository.save(workspaceMember);
-  //   const channelMember = new ChannelMembers();
-  //   channelMember.ChannelId = workspace.Channels.find(
-  //     (v) => v.name === '일반',
-  //   ).id;
-  //   channelMember.UserId = user.id;
-  //   await this.channelMembersRepository.save(channelMember);
-  // }
+  async createWorkspaceMembers(url: string, email: string) {
+    const workspace = await this.workspacesRepository.findOne({
+      where: { url },
+      join: {
+        alias: 'workspace',
+        innerJoinAndSelect: {
+          channels: 'workspace.Channels',
+        },
+      },
+    });
 
-  // async getWorkspaceMember(url: string, id: number) {
-  //   return this.usersRepository
-  //     .createQueryBuilder('user')
-  //     .where('user.id = :id', { id })
-  //     .innerJoin('user.Workspaces', 'workspaces', 'workspaces.url = :url', {
-  //       url,
-  //     })
-  //     .getOne();
-  // }
+    const user = await this.usersRepository.findOne({ where: { email } });
+    if (!user) {
+      return null;
+    }
+
+    const workspaceMember = new WorkspaceMembers();
+    workspaceMember.WorkspaceId = workspace.id;
+    workspaceMember.UserId = user.id;
+    await this.workspaceMembersRepository.save(workspaceMember);
+
+    const channelMember = new ChannelMembers();
+    channelMember.ChannelId = workspace.Channels.find(
+      (v) => v.name === '일반',
+    ).id;
+
+    channelMember.UserId = user.id;
+    await this.channelMembersRepository.save(channelMember);
+  }
+
+  async getWorkspaceMember(url: string, id: number) {
+    return this.usersRepository
+      .createQueryBuilder('user')
+      .where('user.id = :id', { id })
+      .innerJoin('user.Workspaces', 'workspaces', 'workspaces.url = :url', {
+        url,
+      })
+      .getOne();
+  }
 }
