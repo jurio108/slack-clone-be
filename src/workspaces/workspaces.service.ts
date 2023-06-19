@@ -75,6 +75,8 @@ export class WorkspacesService {
       await queryRunner.manager
         .getRepository(ChannelMembers)
         .save(channelMember);
+
+      await queryRunner.commitTransaction();
     } catch (error) {
       this.logger.error(error);
       await queryRunner.rollbackTransaction();
